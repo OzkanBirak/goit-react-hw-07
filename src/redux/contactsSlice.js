@@ -1,6 +1,6 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
-import { selectNameFilter } from './filtersSlice';
 import { fetchContacts, addContact, deleteContact } from './contactsOps';
+import { selectNameFilter } from './filtersSlice';
 
 const contactsSlice = createSlice({
   name: 'contacts',
@@ -11,6 +11,7 @@ const contactsSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // fetchContacts
       .addCase(fetchContacts.pending, state => {
         state.loading = true;
         state.error = null;
@@ -23,31 +24,45 @@ const contactsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // addContact
+      .addCase(addContact.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(addContact.fulfilled, (state, action) => {
+        state.loading = false;
         state.items.push(action.payload);
       })
+      .addCase(addContact.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // deleteContact
+      .addCase(deleteContact.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(deleteContact.fulfilled, (state, action) => {
+        state.loading = false;
         state.items = state.items.filter(
-          contact => contact.id !== action.meta.arg
+          contact => contact.id !== action.payload,
         );
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-// Базові селектори
-export const selectContacts = state => state.contacts.items;
-export const selectLoading = state => state.contacts.loading;
-export const selectError = state => state.contacts.error;
+export const contactsReducer = contactsSlice.reducer;
 
-// Мемоїзований селектор фільтрованих контактів
+export const selectContacts = state => state.contacts.items;
+
 export const selectFilteredContacts = createSelector(
   [selectContacts, selectNameFilter],
-  (contacts, filter) => {
-    const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  }
+  (contacts, nameFilter) =>
+    contacts.filter(contact =>
+      contact.name.toLowerCase().includes(nameFilter.toLowerCase()),
+    ),
 );
-
-export default contactsSlice.reducer;

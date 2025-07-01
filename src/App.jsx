@@ -1,35 +1,29 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchContacts } from '../redux/contactsOps';
-import { selectLoading, selectError } from '../redux/contactsSlice';
-import ContactsForm from '../ContactsForm/ContactsForm';
-import ContactList from '../ContactList/ContactList';
-import SearchBox from '../SearchBox/SearchBox';
-
-import styles from './App.module.css'; 
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchContacts } from './redux/contactsOps';
+import ContactForm from './components/ContactForm/ContactForm';
+import Filter from './components/Filter/Filter';
+import ContactList from './components/ContactList/ContactList';
+import './App.css'
 
 const App = () => {
   const dispatch = useDispatch();
-  const loading = useSelector(selectLoading);
-  const error = useSelector(selectError);
 
   useEffect(() => {
     dispatch(fetchContacts());
   }, [dispatch]);
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Книга контактів</h1>
-
-      <ContactsForm />
-      <SearchBox />
-
-      {loading && <p className={styles.loading}>Завантаження контактів...</p>}
-      {error && <p className={styles.error}>Помилка: {error}</p>}
-
+    <div style={{ maxWidth: 400, margin: '0 auto', padding: 16 }}>
+      <h1>Phonebook</h1>
+      <ContactForm />
+      <h2>Contacts</h2>
+      <Filter />
       <ContactList />
     </div>
   );
 };
 
-export default App;
+
+
+export default App
